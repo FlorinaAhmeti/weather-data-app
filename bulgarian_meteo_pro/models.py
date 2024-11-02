@@ -1,12 +1,11 @@
 from django.db import models
-from general.models import AbstractTrackedModel
-from stations.models import Statio
+
 # Create your models here.
 
 from django.db import models
 
 class BulgarianMeteoProData(models.Model):
-    station_id = models.ForeignKey(max_length=50)
+    station_id = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
     latitude = models.FloatField()
     longitude = models.FloatField()

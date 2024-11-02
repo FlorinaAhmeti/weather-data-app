@@ -1,5 +1,4 @@
 from django.db import models
-from datetime import datetime
 # Create your models here.
 
 class AbstractTrackedModel(models.Model):
@@ -8,9 +7,3 @@ class AbstractTrackedModel(models.Model):
 
     class Meta:
         abstract = True
-        
-    def on_save(self):
-        self.updated_at = datetime.now()
-        if not self.created_at:
-            self.created_at = datetime.now()
-        super().save()
