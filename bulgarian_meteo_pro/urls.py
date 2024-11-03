@@ -1,7 +1,7 @@
-from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from .viewsets import BulgarianMeteoProDataViewSet
 
-urlpatterns = [
-    path('weather-data/', views.create_weather_data, name='create_weather_data'),
-    path('weather-data/<str:city_name>/', views.get_weather_data_by_city, name='get_weather_data_by_city'),
-]
+router = DefaultRouter()
+router.register(r'bulgarian_metoe_pro', BulgarianMeteoProDataViewSet, basename='bulgarian_metoe_pro')
+
+urlpatterns = router.urls
