@@ -5,7 +5,7 @@ import uuid
 class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Station
-        fields = ['station_id', 'city', 'latitude', 'longitude', 'status', 'api_key']
+        fields = ['station_id', 'city', 'status', 'api_key']
         read_only_fields = ['api_key'] 
 
     def update(self, instance, validated_data):
@@ -18,8 +18,6 @@ class StationSerializer(serializers.ModelSerializer):
 
         instance.status = status
         instance.city = validated_data.get("city", instance.city)
-        instance.latitude = validated_data.get("latitude", instance.latitude)
-        instance.longitude = validated_data.get("longitude", instance.longitude)
         
         instance.save()
         return instance

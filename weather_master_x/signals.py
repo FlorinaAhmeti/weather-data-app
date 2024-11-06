@@ -13,23 +13,15 @@ def update_station_model(sender, instance, **kwargs):
         fields_to_update = []
 
         if instance.operational_status == StatusChoices.MAINTENANCE and station.api_key is not None:
-            station.api_key = None
             station.status = False
-            fields_to_update.append('api_key', 'status')
+            fields_to_update.append('status')
             update_needed = True
         
         if station.city != instance.location.city_name:
             station.city = instance.location.city_name
             fields_to_update.append('city')
             update_needed = True
-        if station.latitude != instance.location.coordinates.lat:
-            station.latitude = instance.location.coordinates.lat
-            fields_to_update.append('latitude')
-            update_needed = True
-        if station.longitude != instance.location.coordinates.lon:
-            station.longitude = instance.location.coordinates.lat
-            fields_to_update.append('longitude')
-            update_needed = True
+ 
 
         if update_needed:
             station.save(update_fields=fields_to_update)
