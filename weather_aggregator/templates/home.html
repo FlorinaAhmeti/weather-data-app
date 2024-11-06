@@ -1,0 +1,256 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #555;
+            text-align: center;
+        }
+        
+        /* Form and Selector Styling */
+        #citySelector, input[type="date"], button {
+            padding: 10px;
+            margin: 10px 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        /* DataTable Styling */
+        #weatherTable_wrapper {
+            margin-top: 20px;
+        }
+        #weatherTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        #weatherTable th, #weatherTable td {
+            padding: 10px;
+            text-align: center;
+        }
+        #weatherTable th {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        #weatherTable td {
+            background-color: #fafafa;
+        }
+        
+        /* Chart Container Styling */
+        #tempChart {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            #citySelector, input[type="date"], button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Dashboard</h1>
+
+        <!-- DataTable Section -->
+        <h2>City Weather Data</h2>
+        <select id="citySelector">
+            <option value="">Select a city</option>
+            <!-- Add options dynamically in JavaScript -->
+        </select>
+        <table id="weatherTable" class="cell-border compact stripe">
+            <thead>
+                <tr>
+                    <th>Station ID</th>
+                    <th>Date</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Pressure (hPa)</th>
+                    <th>Rainfall (mm)</th>
+                    <th>Wind Speed (kph)</th>
+                    <th>UV Index</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- Line Chart Section -->
+        <h2>Daily Average Temperature</h2>
+        <input type="date" id="fromDate">
+        <input type="date" id="toDate">
+        <button onclick="loadDailyAverage()">Load Chart</button>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#weatherTable').DataTable();
+            populateCityOptions();
+        });
+
+        // Function to load city weather data and populate the DataTable
+        async function loadCityWeatherData(city) {
+            const response = await fetch(`/api/city-weather-data/${city}/`);
+            const data = await response.json();
+
+            const table = $('#weatherTable').DataTable();
+            table.clear();  // Clear existing data
+
+            data.forEach(entry => {
+                const timestamp = formatTimestamp(entry.timestamp);
+
+                table.row.add([
+                    entry.station_id || "No data",
+                    timestamp || "No data",
+                    entry.temperature_celsius != null ? entry.temperature_celsius : "No data",
+                    entry.humidity_percent != null ? entry.humidity_percent : "No data",
+                    entry.pressure_hpa != null ? entry.pressure_hpa : "No data",
+                    entry.rain_mm != null ? entry.rain_mm : "No data",
+                    entry.wind_speed_kph != null ? entry.wind_speed_kph : "No data",
+                    entry.uv_index != null ? entry.uv_index : "No data"
+                ]);
+            });
+            table.draw();
+        }
+
+        // Helper function to format timestamp to readable format
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        // Function to load daily average temperature data and display it in a chart
+        async function loadDailyAverage() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const formattedFromDate = formatDateForAPI(fromDate);
+            const formattedToDate = formatDateForAPI(toDate);
+
+            const response = await fetch(`/api/daily-average-weather/?from=${formattedFromDate}&to=${formattedToDate}`);
+            const data = await response.json();
+
+            const chartLabels = data.map(entry => entry.date);
+            const tempData = data.map(entry => entry.avg_temp_celsius);
+            const chartDetails = data.map(entry => ({
+                humidity: entry.avg_humidity,
+                pressure: entry.avg_pressure,
+                rainfall: entry.avg_rainfall,
+                wind_speed: entry.avg_wind_speed,
+                uv_index: entry.avg_uv_index,
+            }));
+
+            renderChart(chartLabels, tempData, chartDetails);
+        }
+
+        // Helper function to reformat date for API in 'DD/MM/YYYY' format
+        function formatDateForAPI(date) {
+            const [year, month, day] = date.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Function to render the chart with Chart.js
+        function renderChart(labels, tempData, details) {
+            const ctx = document.getElementById('tempChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Temperature (°C)',
+                        data: tempData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const index = tooltipItem.dataIndex;
+                                    const detail = details[index];
+                                    return [
+                                        `Temp: ${tooltipItem.raw}°C`,
+                                        `Humidity: ${detail.humidity}%`,
+                                        `Pressure: ${detail.pressure} hPa`,
+                                        `Rainfall: ${detail.rainfall} mm`,
+                                        `Wind Speed: ${detail.wind_speed} kph`,
+                                        `UV Index: ${detail.uv_index}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Date' }},
+                        y: { title: { display: true, text: 'Temperature (°C)' }}
+                    }
+                }
+            });
+        }
+
+        // Populate city options from the server
+        async function populateCityOptions() {
+            const response = await fetch('/api/cities');
+            const cities = await response.json();
+            const citySelector = document.getElementById('citySelector');
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.name;
+                option.textContent = city.name;
+                citySelector.appendChild(option);
+            });
+        }
+
+        document.getElementById('citySelector').addEventListener('change', function() {
+            const city = this.value;
+            if (city) {
+                loadCityWeatherData(city);
+            }
+        });
+    </script>
+</body>
+</html>

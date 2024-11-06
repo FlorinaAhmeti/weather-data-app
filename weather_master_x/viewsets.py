@@ -1,11 +1,10 @@
-from rest_framework import mixins, viewsets, status
+from rest_framework import mixins, viewsets
 from weather_master_x.filters import WeatherMasterXFilter
 from stations.authorization import StationAPIKeyAuthentication
 from .models import WeatherMasterX
 from .serializers import WeatherMasterXSerializer
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.response import Response
 
 class WeatherMasterXViewset(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     queryset = WeatherMasterX.objects.all()

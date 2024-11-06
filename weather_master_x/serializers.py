@@ -29,7 +29,6 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        breakpoint()
         location_data = validated_data.pop('location')
         coordinates_data = location_data.pop('coordinates')
         

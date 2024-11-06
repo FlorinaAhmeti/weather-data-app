@@ -42,3 +42,7 @@ class WeatherMasterX(models.Model):
 
     def __str__(self):
         return f"Station ID: {self.station_identifier}, Status: {self.operational_status}"
+    
+    @property
+    def temperature_celcius(self):
+        return round((self.readings.temp_fahrenheit - 32) * 5.0 / 9.0, 2)
