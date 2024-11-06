@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'general',
     'stations',
     'bulgarian_meteo_pro',
+    'weather_master_x',
 ]
 
 MIDDLEWARE = [

@@ -3,8 +3,12 @@ from django.db import models
 from general.models import AbstractTrackedModel
 from stations.models import Station
 
+class Status(models.TextChoices):
+    ACTIVE = 'active', 'Active'
+    INACTIVE = 'inactive', 'Inactive'
+
 class BulgarianMeteoProData(AbstractTrackedModel):
-    station_id = models.ForeignKey(Station, on_delete=models.DO_NOTHING)
+    station_id = models.ForeignKey(Station, on_delete=models.DO_NOTHING, related_name='bulgarian_meteo_pro_data')
     city = models.CharField(max_length=100)
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -12,10 +16,7 @@ class BulgarianMeteoProData(AbstractTrackedModel):
     temperature_celsius = models.DecimalField(max_digits=5, decimal_places=2)
     humidity_percent = models.DecimalField(max_digits=5, decimal_places=2)
     wind_speed_kph = models.DecimalField(max_digits=5, decimal_places=2)
-    station_status = models.CharField(max_length=20, choices=[
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
-    ])
+    station_status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
 
     class Meta:
         indexes = [

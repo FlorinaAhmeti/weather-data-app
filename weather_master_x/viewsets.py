@@ -1,17 +1,17 @@
 from rest_framework import mixins, viewsets, status
-from bulgarian_meteo_pro.filters import BulgarianMeteoProDataFilter
+from weather_master_x.filters import WeatherMasterXFilter
 from stations.authorization import StationAPIKeyAuthentication
-from .models import BulgarianMeteoProData
-from .serializers import BulgarianMeteoProDataSerializer
+from .models import WeatherMasterX
+from .serializers import WeatherMasterXSerializer
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 
-class BulgarianMeteoProDataViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = BulgarianMeteoProData.objects.all()
-    serializer_class = BulgarianMeteoProDataSerializer
+class WeatherMasterXViewset(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = WeatherMasterX.objects.all()
+    serializer_class = WeatherMasterXSerializer
     authentication_classes = [StationAPIKeyAuthentication]
     filter_backends = [OrderingFilter, DjangoFilterBackend]
-    filter_class = BulgarianMeteoProDataFilter
+    filter_class = WeatherMasterXFilter
     ordering_fields = ['timestamp', 'temperature_celsius', 'humidity_percent', 'wind_speed_kph']
     

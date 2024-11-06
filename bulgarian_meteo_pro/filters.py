@@ -1,6 +1,4 @@
-from django_filters import FilterSet, AllValuesFilter
-from django_filters import DateTimeFilter, NumberFilter
-
+from django_filters import FilterSet, AllValuesFilter, DateTimeFilter, NumberFilter
 from bulgarian_meteo_pro.models import BulgarianMeteoProData
 
 class BulgarianMeteoProDataFilter(FilterSet):
