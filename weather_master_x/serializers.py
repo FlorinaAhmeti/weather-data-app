@@ -29,15 +29,11 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        breakpoint()
         location_data = validated_data.pop('location')
         coordinates_data = location_data.pop('coordinates')
-        readings_data = {  
-            'temp_fahrenheit': validated_data.pop('temp_fahrenheit'),
-            'humidity_percent': validated_data.pop('humidity_percent'),
-            'pressure_hpa': validated_data.pop('pressure_hpa'),
-            'uv_index': validated_data.pop('uv_index'),
-            'rain_mm': validated_data.pop('rain_mm')
-        }
+        
+        readings_data = validated_data.pop('readings')
 
         coordinates = Coordinates.objects.create(**coordinates_data)
         location = Location.objects.create(coordinates=coordinates, **location_data)
@@ -47,13 +43,7 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         location_data = validated_data.pop('location', None)
-        readings_data = {
-            'temp_fahrenheit': validated_data.pop('temp_fahrenheit', None),
-            'humidity_percent': validated_data.pop('humidity_percent', None),
-            'pressure_hpa': validated_data.pop('pressure_hpa', None),
-            'uv_index': validated_data.pop('uv_index', None),
-            'rain_mm': validated_data.pop('rain_mm', None)
-        }
+        readings_data = validated_data.pop('readings', None)
 
         if location_data and 'coordinates' in location_data:
             coordinates_data = location_data.pop('coordinates')
