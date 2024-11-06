@@ -1,5 +1,5 @@
 from django_filters import FilterSet, AllValuesFilter, DateTimeFilter, NumberFilter
-from .models import WeatherMasterDataX
+from .models import WeatherMasterX
 
 class WeatherMasterXFilter(FilterSet):
     city = AllValuesFilter(field_name='location__city_name')
@@ -13,7 +13,7 @@ class WeatherMasterXFilter(FilterSet):
     operational_status = AllValuesFilter(field_name='operational_status')
     
     class Meta:
-        model = WeatherMasterDataX
+        model = WeatherMasterX
         fields = [
             'city',
             'temp_fahrenheit',

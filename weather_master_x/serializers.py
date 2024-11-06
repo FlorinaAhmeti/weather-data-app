@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import WeatherMasterDataX, Location, Coordinates, Readings
+from .models import WeatherMasterX, Location, Coordinates, Readings
 
 class CoordinatesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,7 +22,7 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
     rain_mm = serializers.FloatField(source='readings.rain_mm')
 
     class Meta:
-        model = WeatherMasterDataX
+        model = WeatherMasterX
         fields = [
             'station_identifier', 'location', 'recorded_at', 'temp_fahrenheit', 
             'humidity_percent', 'pressure_hpa', 'uv_index', 'rain_mm', 'operational_status'
@@ -42,7 +42,7 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
         coordinates = Coordinates.objects.create(**coordinates_data)
         location = Location.objects.create(coordinates=coordinates, **location_data)
         readings = Readings.objects.create(**readings_data)
-        weather_data = WeatherMasterDataX.objects.create(location=location, readings=readings, **validated_data)
+        weather_data = WeatherMasterX.objects.create(location=location, readings=readings, **validated_data)
         return weather_data
 
     def update(self, instance, validated_data):

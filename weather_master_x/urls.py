@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import WeatherMasterXViewset
+from .viewsets import WeatherMasterXViewset
 
 router = DefaultRouter()
 router.register(r'weather-master-data', WeatherMasterXViewset)
