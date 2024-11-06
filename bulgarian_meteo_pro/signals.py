@@ -6,7 +6,6 @@ from django.db import transaction
 @receiver(pre_save, sender=BulgarianMeteoProData)
 def update_station_model(sender, instance, **kwargs):
     with transaction.atomic():
-        breakpoint()
         station = instance.station_id
 
         update_needed = False
