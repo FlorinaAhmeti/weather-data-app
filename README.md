@@ -47,6 +47,12 @@ The Weather Aggregator project is a Django-based application that aggregates wea
     python3 manage.py createsuperuser
     ```
 
+3. **Create Seed data** (optional):
+    If you need access to Django's admin panel, create a superuser account:
+    ```bash
+    python3 manage.py seed_data
+    ```
+
 ## Running the Development Server
 
 To start the Django development server, run:
