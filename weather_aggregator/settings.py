@@ -57,6 +57,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # For in-memory caching
+        'LOCATION': 'unique-snowflake',  # Unique identifier for this cache
+        'TIMEOUT': 1800,  # Cache timeout (30 minutes)
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # Optional: Limit number of cache entries
+        }
+    }
+}
+
 # settings.py
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [

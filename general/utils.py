@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Optional, Dict, List
 from general.dataclass import WeatherDataEntry
+from django.core.cache import cache
+
 
 def validate_date_range(from_date: Optional[str] = None, to_date: Optional[str] = None) -> tuple[Optional[datetime], Optional[datetime]]:
     """
@@ -112,3 +114,11 @@ def combine_weather_data(master_data_x: List[Dict], bulgarian_metro_pro: List[Di
 
     # Convert combined data to a sorted list
     return sorted(combined_data.values(), key=lambda x: x.date)
+
+def clear_city_cache(city_name):
+    cache_key = f"city_weather_data_{city_name}"
+    cache.delete(cache_key)
+    
+def clear_daily_avg_weather_cache(from_date, to_date):
+    cache_key = f"daily_avg_weather_{from_date}_{to_date}"
+    cache.delete(cache_key)
