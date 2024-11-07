@@ -9,9 +9,12 @@ class StationAPIKeyAuthentication(BaseAuthentication):
     """
     def authenticate(self, request):
         auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            # Raise an AuthenticationFailed exception if the token is missing
+            raise AuthenticationFailed('Authorization header is missing.')
 
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return None  # No Bearer token present
+        if not auth_header.startswith('Bearer '):
+            raise AuthenticationFailed('Invalid token header. No Bearer token.')
 
         api_key = auth_header.split(' ')[1]
 
@@ -20,4 +23,5 @@ class StationAPIKeyAuthentication(BaseAuthentication):
         except Station.DoesNotExist:
             raise AuthenticationFailed('Invalid API key.')
 
+        # Return the station object as the authenticated user
         return (station, None)

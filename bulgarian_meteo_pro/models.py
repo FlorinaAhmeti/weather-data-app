@@ -25,4 +25,4 @@ class BulgarianMeteoProData(AbstractTrackedModel):
         ordering = ['timestamp']  # Return data in chronological order
 
     def __str__(self):
-        return f"Station {self.station_id} in {self.city} recorded at {self.timestamp}"
+        return f"Station {self.station_id.station_id} in {self.city} recorded at {self.timestamp}"

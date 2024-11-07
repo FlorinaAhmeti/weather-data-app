@@ -11,11 +11,6 @@ class StationSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         status = validated_data.get("status", instance.status)
         
-        if status:
-            instance.api_key = None
-        elif status and instance.status == False:
-            instance.api_key = uuid.uuid4()
-
         instance.status = status
         instance.city = validated_data.get("city", instance.city)
         

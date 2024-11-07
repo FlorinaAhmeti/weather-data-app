@@ -12,20 +12,20 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['city_name', 'coordinates']
+        
+class ReadingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Readings
+        fields = ['temp_fahrenheit', 'humidity_percent', 'pressure_hpa', 'uv_index', 'rain_mm']
 
 class WeatherMasterXSerializer(serializers.ModelSerializer):
     location = LocationSerializer() 
-    temp_fahrenheit = serializers.FloatField(source='readings.temp_fahrenheit')
-    humidity_percent = serializers.FloatField(source='readings.humidity_percent')
-    pressure_hpa = serializers.FloatField(source='readings.pressure_hpa')
-    uv_index = serializers.IntegerField(source='readings.uv_index')
-    rain_mm = serializers.FloatField(source='readings.rain_mm')
+    readings = ReadingsSerializer()
 
     class Meta:
         model = WeatherMasterX
         fields = [
-            'station_identifier', 'location', 'recorded_at', 'temp_fahrenheit', 
-            'humidity_percent', 'pressure_hpa', 'uv_index', 'rain_mm', 'operational_status'
+            'station_identifier', 'location', 'readings', 'recorded_at', 'operational_status'
         ]
 
     def create(self, validated_data):
@@ -51,7 +51,8 @@ class WeatherMasterXSerializer(serializers.ModelSerializer):
         if location_data:
             Location.objects.filter(id=instance.location.id).update(**location_data)
 
-        Readings.objects.filter(id=instance.readings.id).update(**{k: v for k, v in readings_data.items() if v is not None})
+        if readings_data:
+            Readings.objects.filter(id=instance.readings.id).update(**{k: v for k, v in readings_data.items() if v is not None})
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

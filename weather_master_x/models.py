@@ -41,7 +41,7 @@ class WeatherMasterX(models.Model):
     operational_status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.OPERATIONAL, help_text="Operational status of the station")
 
     def __str__(self):
-        return f"Station ID: {self.station_identifier}, Status: {self.operational_status}"
+        return f"Station ID: {self.station_identifier.station_id}, Status: {self.operational_status}"
     
     @property
     def temperature_celcius(self):
