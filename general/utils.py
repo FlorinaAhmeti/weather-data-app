@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Dict, List
 from general.dataclass import AvgWeatherDataEntry
 from django.core.cache import cache
-
+from decimal import Decimal
 
 def validate_date_range(from_date: Optional[str] = None, to_date: Optional[str] = None) -> tuple[Optional[datetime], Optional[datetime]]:
     """
@@ -66,18 +66,24 @@ def create_weather_entry(entry: Dict, source: str) -> AvgWeatherDataEntry:
             
 def update_weather_entry(existing_entry: AvgWeatherDataEntry, new_entry: AvgWeatherDataEntry) -> None:
     """Updates an existing AvgWeatherDataEntry with values from a new entry, averaging where applicable."""
+    
     if new_entry.avg_temp_celsius is not None:
+        existing_avg = Decimal(existing_entry.avg_temp_celsius) if existing_entry.avg_temp_celsius is not None else None
+        new_avg = Decimal(new_entry.avg_temp_celsius)
         existing_entry.avg_temp_celsius = (
-            (existing_entry.avg_temp_celsius + new_entry.avg_temp_celsius) / 2
-            if existing_entry.avg_temp_celsius is not None else new_entry.avg_temp_celsius
+            (existing_avg + new_avg) / 2 if existing_avg is not None else new_avg
         )
+        
     if new_entry.avg_humidity is not None:
+        existing_avg = Decimal(existing_entry.avg_humidity) if existing_entry.avg_humidity is not None else None
+        new_avg = Decimal(new_entry.avg_humidity)
         existing_entry.avg_humidity = (
-            (existing_entry.avg_humidity + new_entry.avg_humidity) / 2
-            if existing_entry.avg_humidity is not None else new_entry.avg_humidity
+            (existing_avg + new_avg) / 2 if existing_avg is not None else new_avg
         )
+        
     if new_entry.avg_wind_speed is not None:
-        existing_entry.avg_wind_speed = new_entry.avg_wind_speed
+        existing_entry.avg_wind_speed = float(new_entry.avg_wind_speed)  # Convert Decimal to float
+
 
 def combine_weather_data(master_data_x: List[Dict], bulgarian_metro_pro: List[Dict]) -> List[AvgWeatherDataEntry]:
     """
