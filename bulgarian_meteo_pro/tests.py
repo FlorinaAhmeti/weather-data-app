@@ -5,8 +5,7 @@ from django.urls import reverse
 from .models import BulgarianMeteoProData, Status
 from .serializers import BulgarianMeteoProDataSerializer
 from stations.models import Station
-import datetime
-
+from datetime import datetime, timedelta
 class BulgarianMeteoProDataModelTest(TestCase):
     def setUp(self):
         self.station = Station.objects.create(station_id="BG123", city="Sofia")
@@ -24,6 +23,14 @@ class BulgarianMeteoProDataModelTest(TestCase):
 
     def test_str_method(self):
         self.assertIn("Station BG123 in Sofia", str(self.weather_data))
+        
+    def test_station_update_from_signal(self):
+        self.weather_data.station_status = Status.INACTIVE
+        self.weather_data.city = "Varna"
+        self.weather_data.save()
+        self.station.refresh_from_db()
+        self.assertFalse(self.station.status)
+        self.assertEqual(self.station.city, "Varna")
 
 class BulgarianMeteoProDataSerializerTest(TestCase):
     def setUp(self):
@@ -47,14 +54,6 @@ class BulgarianMeteoProDataSerializerTest(TestCase):
                                             "temperature_celsius", "humidity_percent", "wind_speed_kph", 
                                             "station_status"})
 
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
-from .models import BulgarianMeteoProData
-from stations.models import Station
-from datetime import datetime, timedelta
-from .filters import BulgarianMeteoProDataFilter
 
 class BulgarianMeteoProDataViewSetTest(TestCase):
     def setUp(self):
@@ -133,7 +132,6 @@ class BulgarianMeteoProDataViewSetTest(TestCase):
         )
 
     def test_ordering_by_temperature(self):
-        
         url = reverse("bulgarian-metoe-pro-list")
         response = self.client.get(url, {"ordering": "temperature_celsius"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)

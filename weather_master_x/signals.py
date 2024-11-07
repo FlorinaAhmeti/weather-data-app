@@ -8,12 +8,13 @@ from .models import StatusChoices
 def update_station_model(sender, instance, **kwargs):
     with transaction.atomic():
         station = instance.station_identifier
+        station_status = { True: "operational", False: "maintenance"}
 
         update_needed = False
         fields_to_update = []
 
-        if instance.operational_status == StatusChoices.MAINTENANCE and station.api_key is not None:
-            station.status = False
+        if instance.operational_status != station_status.get(station.status):
+            station.status = not station.status
             fields_to_update.append('status')
             update_needed = True
         

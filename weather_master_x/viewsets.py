@@ -8,7 +8,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny
 
-
 class WeatherMasterXViewset(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     queryset = WeatherMasterX.objects.all()
     serializer_class = WeatherMasterXSerializer

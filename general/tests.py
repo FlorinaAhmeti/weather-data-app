@@ -5,8 +5,8 @@ from django.urls import reverse
 from .serializers import UnifiedWeatherDataSerializer
 from stations.models import Station
 from weather_master_x.models import Coordinates, Location, Readings, WeatherMasterX
-from bulgarian_meteo_pro.models import BulgarianMeteoProData
-import datetime
+from bulgarian_meteo_pro.models import BulgarianMeteoProData, Status
+from datetime import datetime
 
 class UnifiedWeatherDataSerializerTest(TestCase):
     def setUp(self):
@@ -24,20 +24,45 @@ class UnifiedWeatherDataSerializerTest(TestCase):
             rain_mm=0.5
         )
         
-        self.weather_data = WeatherMasterX.objects.create(
+        self.weather_data_master_x = WeatherMasterX.objects.create(
             station_identifier=self.station,
-            recorded_at=datetime.datetime.now(),
+            recorded_at=datetime.now(),
             readings=readings,
             location=location
         )
+        
+        self.weather_data_bulgarion_pro = BulgarianMeteoProData.objects.create(
+            station_id=self.station,
+            city="Test City",
+            latitude=42.6977,
+            longitude=23.3219,
+            timestamp=datetime.now(),
+            temperature_celsius=20.5,
+            humidity_percent=60.0,
+            wind_speed_kph=15.0,
+            station_status=Status.ACTIVE
+        )
 
-    def test_serializer_data_format(self):
-        serializer = UnifiedWeatherDataSerializer(instance=self.weather_data)
+    def test_serializer_data_format_for_weather_master_x(self):
+        serializer = UnifiedWeatherDataSerializer(instance=self.weather_data_master_x)
         data = serializer.data
-        self.assertIn("station_id", data)
-        self.assertIn("city", data)
-        self.assertIn("temperature_celsius", data)
         self.assertEqual(data["station_id"], self.station.station_id)
+        self.assertEqual(data["city"], self.station.city)
+        self.assertEqual(data["temperature_celsius"], self.weather_data_master_x.temperature_celcius)
+        self.assertEqual(data["wind_speed_kph"], None)
+        self.assertEqual(data["station_id"], self.station.station_id)
+    
+    def test_serializer_data_format_for_bulgarian_meteo_pro(self):
+        serializer = UnifiedWeatherDataSerializer(instance=self.weather_data_bulgarion_pro)
+        data = serializer.data
+        self.assertEqual(data["station_id"], self.station.station_id)
+        self.assertEqual(data["city"], self.station.city)
+        self.assertEqual(data["temperature_celsius"], self.weather_data_bulgarion_pro.temperature_celsius)
+        self.assertEqual(data["wind_speed_kph"], self.weather_data_bulgarion_pro.wind_speed_kph)
+        self.assertEqual(data["rain_mm"], None)
+        self.assertEqual(data["pressure_hpa"], None)
+        self.assertEqual(data["uv_index"], None)
+        
 
 class CityListViewTest(TestCase):
     def setUp(self):

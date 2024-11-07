@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from datetime import date
 @dataclass
-class WeatherDataEntry:
+class AvgWeatherDataEntry:
     date: date
     avg_temp_celsius: Optional[float] = None
     avg_humidity: Optional[float] = None

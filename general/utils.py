@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, Dict, List
-from general.dataclass import WeatherDataEntry
+from general.dataclass import AvgWeatherDataEntry
 from django.core.cache import cache
 
 
@@ -41,10 +41,10 @@ def validate_date_range(from_date: Optional[str] = None, to_date: Optional[str] 
 
     return (from_date_parsed, to_date_parsed)
 
-def create_weather_entry(entry: Dict, source: str) -> WeatherDataEntry:
-    """Creates a WeatherDataEntry from an entry based on the data source."""
+def create_weather_entry(entry: Dict, source: str) -> AvgWeatherDataEntry:
+    """Creates a AvgWeatherDataEntry from an entry based on the data source."""
     if source == "weather_master":
-        return WeatherDataEntry(
+        return AvgWeatherDataEntry(
             date=entry['date'],
             avg_temp_celsius=entry.get('avg_temp_celsius'),
             avg_humidity=entry.get('avg_humidity'),
@@ -54,7 +54,7 @@ def create_weather_entry(entry: Dict, source: str) -> WeatherDataEntry:
             avg_wind_speed=None  # No wind speed data in WeatherMasterX
         )
     elif source == "meteo":
-        return WeatherDataEntry(
+        return AvgWeatherDataEntry(
             date=entry['date'],
             avg_temp_celsius=entry.get('avg_temp_celsius'),
             avg_humidity=entry.get('avg_humidity'),
@@ -64,8 +64,8 @@ def create_weather_entry(entry: Dict, source: str) -> WeatherDataEntry:
             avg_wind_speed=entry.get('avg_wind_speed')
         )
             
-def update_weather_entry(existing_entry: WeatherDataEntry, new_entry: WeatherDataEntry) -> None:
-    """Updates an existing WeatherDataEntry with values from a new entry, averaging where applicable."""
+def update_weather_entry(existing_entry: AvgWeatherDataEntry, new_entry: AvgWeatherDataEntry) -> None:
+    """Updates an existing AvgWeatherDataEntry with values from a new entry, averaging where applicable."""
     if new_entry.avg_temp_celsius is not None:
         existing_entry.avg_temp_celsius = (
             (existing_entry.avg_temp_celsius + new_entry.avg_temp_celsius) / 2
@@ -79,16 +79,16 @@ def update_weather_entry(existing_entry: WeatherDataEntry, new_entry: WeatherDat
     if new_entry.avg_wind_speed is not None:
         existing_entry.avg_wind_speed = new_entry.avg_wind_speed
 
-def combine_weather_data(master_data_x: List[Dict], bulgarian_metro_pro: List[Dict]) -> List[WeatherDataEntry]:
+def combine_weather_data(master_data_x: List[Dict], bulgarian_metro_pro: List[Dict]) -> List[AvgWeatherDataEntry]:
     """
-    Combines data from WeatherMasterX and BulgarianMeteoProData into WeatherDataEntry dataclass instances.
+    Combines data from WeatherMasterX and BulgarianMeteoProData into AvgWeatherDataEntry dataclass instances.
 
     Args:
         master_data_x (List[Dict]): Aggregated data from WeatherMasterX.
         bulgarian_metro_pro (List[Dict]): Aggregated data from BulgarianMeteoProData.
 
     Returns:
-        List[WeatherDataEntry]: A list of WeatherDataEntry instances with combined data.
+        List[AvgWeatherDataEntry]: A list of AvgWeatherDataEntry instances with combined data.
     """
     combined_data = {}
 
@@ -114,11 +114,3 @@ def combine_weather_data(master_data_x: List[Dict], bulgarian_metro_pro: List[Di
 
     # Convert combined data to a sorted list
     return sorted(combined_data.values(), key=lambda x: x.date)
-
-def clear_city_cache(city_name):
-    cache_key = f"city_weather_data_{city_name}"
-    cache.delete(cache_key)
-    
-def clear_daily_avg_weather_cache(from_date, to_date):
-    cache_key = f"daily_avg_weather_{from_date}_{to_date}"
-    cache.delete(cache_key)

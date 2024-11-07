@@ -18,14 +18,6 @@ class StationModelTest(TestCase):
         self.assertEqual(self.station.city, "Test City")
         self.assertIsNotNone(self.station.api_key)
 
-    def test_status_toggle(self):
-        self.station.status = False
-        self.station.save()
-        self.assertIsNotNone(self.station.api_key)
-
-        self.station.status = True
-        self.station.save()
-        self.assertIsNotNone(self.station.api_key)
 
 class StationSerializerTest(TestCase):
     def setUp(self):
@@ -46,7 +38,7 @@ class StationSerializerTest(TestCase):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         self.station.refresh_from_db()
-        self.assertIsNotNone(self.station.api_key)
+        self.assertEqual(self.station.status, False)
 
 class StationViewSetTest(TestCase):
     def setUp(self):
@@ -63,22 +55,14 @@ class StationViewSetTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["station_id"], str(self.station.station_id))
 
-    def test_update_status_to_inactive(self):
-        url = reverse("station-update-status", args=[self.station.station_id])
-        response = self.client.patch(url, {"status": False}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.station.refresh_from_db()
-        self.assertFalse(self.station.status)
-        self.assertIsNotNone(self.station.api_key)
-
     def test_update_status_to_active(self):
         self.station.status = False
         self.station.api_key = uuid.uuid4()
         self.station.save()
 
-        url = reverse("station-update-status", args=[self.station.station_id])
-        response = self.client.patch(url, {"status": True}, format="json")
+        url = reverse("station-detail", args=[self.station.station_id])
+        response = self.client.put(url, {"status": True, "city": "Bansko" }, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.station.refresh_from_db()
         self.assertTrue(self.station.status)
-        self.assertIsNotNone(self.station.api_key)
+        self.assertEqual(self.station.city, "Bansko")

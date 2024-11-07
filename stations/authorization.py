@@ -25,3 +25,4 @@ class StationAPIKeyAuthentication(BaseAuthentication):
 
         # Return the station object as the authenticated user
         return (station, None)
+    

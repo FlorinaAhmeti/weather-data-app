@@ -16,8 +16,9 @@ class CityListView(APIView):
         return Response([{"name": city} for city in cities])
 
 class CityWeatherDataAPIView(APIView):
-
+ 
     def get(self, request, city_name=None):
+
         if not city_name:
             return Response({"error": "city_name parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -26,7 +27,6 @@ class CityWeatherDataAPIView(APIView):
         
         # Check if the data is already cached
         cached_data = cache.get(cache_key)
-        breakpoint()
         if cached_data:
             return Response(cached_data, status=status.HTTP_200_OK)
 
@@ -50,9 +50,8 @@ class CityWeatherDataAPIView(APIView):
 
         # Sort combined data by timestamp in descending order
         combined_data = sorted(combined_data, key=lambda x: x['timestamp'], reverse=True)
-        # Cache the response data for 1 hour (3600 seconds)
-        cache.set(cache_key, combined_data, timeout=3600)
-        # Paginate combined data
+        cache.set(cache_key, combined_data, timeout=900)
+        
         return Response(combined_data, status=status.HTTP_200_OK)
 
 class DailyAverageWeatherView(APIView):
@@ -66,9 +65,11 @@ class DailyAverageWeatherView(APIView):
             )
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        city_name = request.query_params.get('city_name')
 
         # Create a cache key using the date range
-        cache_key = f"daily_avg_weather_{from_date}_{to_date}"
+        cache_key = f"daily_avg_weather_{from_date}_{to_date}_{city_name}"
         
         # Check if data is already cached for this date range
         cached_data = cache.get(cache_key)
@@ -77,6 +78,10 @@ class DailyAverageWeatherView(APIView):
         
         weather_master_data = WeatherMasterX.objects.filter(recorded_at__gte=from_date, recorded_at__lte=to_date)
         meteo_data = BulgarianMeteoProData.objects.filter(timestamp__gte=from_date, timestamp__lte=to_date)
+
+        if city_name:
+            weather_master_data.filter(location__city_name=city_name)
+            meteo_data.filter(city=city_name)
 
         # Aggregate WeatherMasterX data by date
         weather_master_avg = (
@@ -108,8 +113,8 @@ class DailyAverageWeatherView(APIView):
         )
         
         daily_avg_data = combine_weather_data(weather_master_avg, bulgarian_meteo_pro_avg)
-         # Convert WeatherDataEntry objects to dictionaries
+         # Convert AvgWeatherDataEntry objects to dictionaries
         serialized_data = [entry.__dict__ for entry in daily_avg_data]
         # Cache the response for this date range
-        cache.set(cache_key, serialized_data, timeout=3600)
+        cache.set(cache_key, serialized_data, timeout=900)
         return Response(serialized_data, status=status.HTTP_200_OK)
