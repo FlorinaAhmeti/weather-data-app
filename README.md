@@ -20,7 +20,7 @@ The Weather Aggregator project is a Django-based application that aggregates wea
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/weather-aggregator.git
+    git clone git@github.com:FlorinaAhmeti/weather-data-app.git
     cd weather-aggregator
     ```
 
@@ -66,23 +66,23 @@ python manage.py test
 ## Project Structure
 
 weather-aggregator/
-│
-
-├── general/                   # General utilities, views for normalized data endpoints
-
-├── weather_master_x/          # App for Weather Master X data
-
-├── bulgarian_meteo_pro/       # App for Bulgarian Meteo Pro data
-
-├── stations/                  # App handling station data and authorization classes
-
-├── manage.py                  # Django management script
-
-├── README.md                  # Project documentation
-
-└── pyproject.toml             # Poetry configuration file with dependencies
-
+        │
+        
+        ├── general/                   # General utilities, views for normalized data endpoints
+        
+        ├── weather_master_x/          # App for Weather Master X data
+        
+        ├── bulgarian_meteo_pro/       # App for Bulgarian Meteo Pro data
+        
+        ├── stations/                  # App handling station data and authorization classes
+        
+        ├── manage.py                  # Django management script
+        
+        ├── README.md                  # Project documentation
+        
+        └── pyproject.toml             # Poetry configuration file with dependencies
+        
 
 ## Available Endpoints 
 
-For a list of all the available endpoints visit '/api/docs/'
+For a list of all the available endpoints visit **_'/api/docs/'_**
