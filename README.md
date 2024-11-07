@@ -67,12 +67,19 @@ python manage.py test
 
 weather-aggregator/
 │
+
 ├── general/                   # General utilities, views for normalized data endpoints
+
 ├── weather_master_x/          # App for Weather Master X data
+
 ├── bulgarian_meteo_pro/       # App for Bulgarian Meteo Pro data
+
 ├── stations/                  # App handling station data and authorization classes
+
 ├── manage.py                  # Django management script
+
 ├── README.md                  # Project documentation
+
 └── pyproject.toml             # Poetry configuration file with dependencies
 
 
